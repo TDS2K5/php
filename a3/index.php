@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $_SESSION["password"] = $password;
 
     header("Location:welcome.php");
-
+    
     exit();
 
 }
