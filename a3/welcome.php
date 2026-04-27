@@ -18,9 +18,6 @@
     echo "<h4> Your password is : <h4>";
     echo $_SESSION['password'];
 
-
-
-
     ?>
 
     <br>
