@@ -1,0 +1,95 @@
+<?php
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "bookshop";
+
+$conn = new mysqli($servername, $username, $password, $database);
+
+if ($conn->connect_error) {
+    die("connection failed: " . $conn->connect_error);
+}
+
+// function to calculate discount amount
+function calculateDiscount($book_code, $price, $quantity) {
+    switch ($book_code) {
+        case '101':
+            $discount_rate = 0.15;
+            break;
+        case '102':
+            $discount_rate = 0.25;
+            break;
+        case '103':
+            $discount_rate = 0.25;
+            break;
+        default:
+            $discount_rate = 0.05;
+    }
+    return $price * $quantity * $discount_rate;
+}
+
+// Submit book order.
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_order'])) {
+    
+    
+    $book_number = $_POST['book_number'];
+    $book_title = $_POST['book_title'];
+    
+    
+    $price = $_POST['price'];
+    $quantity = $_POST['quantity'];
+    
+    $book_code = $_POST['book_code'];
+
+    // Calculate total Amount and discount
+    $total_amount = $price * $quantity;
+    
+    
+    $discount_amount = calculateDiscount($book_code, $price, $quantity);
+    
+    $net_amount = $total_amount - $discount_amount;
+
+    // insert data into book_order table.
+    $sql = "INSERT INTO book (book_number, book_title, price, quantity, book_code, total_amount, discount_amount, net_amount) 
+            VALUES ('$book_number', '$book_title', '$price', '$quantity', '$book_code', '$total_amount', '$discount_amount', '$net_amount')";
+
+    if ($conn->query($sql) === TRUE) {
+        echo "Order placed successfully <br>";
+        // MISTAKE: You wrote out the labels but forgot to actually echo the $discount_amount variable!
+        echo "Total Discount Amount: $" . $discount_amount . "<br>";
+        echo "Net Amount: $" . $net_amount . "<br>";
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Shopping Form</title>
+</head>
+<body>
+    <h2>Book Shopping Form</h2>
+    <form method="post" action="">
+        Book number: <input type="text" name="book_number" required><br><br>
+        
+        Book Title: <input type="text" name="book_title" required><br><br>
+        
+        Price: <input type="number" name="price" required><br><br>
+        
+        Quantity: <input type="number" name="quantity" required><br><br>
+        
+        Book Code: 
+        <select name="book_code" required>
+            <option value="101">101</option>
+            <option value="102">102</option>
+            <option value="103">103</option>
+            <option value="other">other</option>
+        </select><br><br>
+        
+        <input type="submit" name="submit_order" value="Place Order">
+    </form>
+</body>
+</html>

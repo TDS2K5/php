@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html> 
+<head>
+    <title> Distance Calculator </title>
+</head>
+<body>
+    <h2> Distance Calculator (Feet & inches) </h2>
+    
+    <?php
+    class Distance {
+        public $feet;
+        public $inches;
+
+        function __construct($f, $i) {
+            $this->feet = $f;
+            $this->inches = $i;
+        }
+
+        function add($d2) {
+            $f = $this->feet + $d2->feet;
+            $i = $this->inches + $d2->inches;
+
+            if ($i >= 12) {
+                $f += (int)($i / 12);
+                $i = $i % 12;
+            }
+            return new Distance($f, $i); 
+        }
+
+        function diff($d2) {
+            $total1 = ($this->feet * 12) + $this->inches;
+            $total2 = ($d2->feet * 12) + $d2->inches;
+
+            $diff = abs($total1 - $total2);
+
+            $f = (int)($diff / 12);
+            $i = $diff % 12;
+
+            return new Distance($f, $i);
+        }
+
+        function display() {
+            return $this->feet . " feet " . $this->inches . " inches";
+        }
+    } // End of class
+
+    $error = "";
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $f1 = $_POST['f1'];
+        $i1 = $_POST['i1'];
+        $f2 = $_POST['f2'];
+        $i2 = $_POST['i2'];
+        $choice = $_POST['choice'];
+
+        // validation
+        if ($i1 >= 12 || $i2 >= 12) {
+            $error = "inches must be less than 12!";
+        } else {
+            $d1 = new Distance($f1, $i1);
+            $d2 = new Distance($f2, $i2);
+
+            echo "<h3>Result : </h3>";
+            echo "Distance 1: " . $d1->display() . "<br>";
+            echo "Distance 2: " . $d2->display() . "<br><br>"; 
+
+            // MENU-driven choice
+            if ($choice == "add") {
+                $result = $d1->add($d2);
+                echo "<b> Addition: </b>" . $result->display();
+            } elseif ($choice == "diff") {
+                $result = $d1->diff($d2);
+                echo "<b> Difference: </b>" . $result->display();
+            }
+            
+            // MISTAKE: Used (br> instead of <br> 
+            echo "<br><hr><br>";
+        }
+    }
+
+    // show error if any
+    if ($error != "") {
+        echo "<p style='color:red;'><b>$error</b></p>";
+    }
+    ?>
+
+    <form method="post">
+        <h3> Enter First Distance </h3>
+        feet: <input type="number" name="f1" required><br><br>
+        
+        Inches: <input type="number" name="i1" required><br><br>
+
+        <h3> Enter Second distance </h3>
+        feet: <input type="number" name="f2" required><br><br>
+        
+        Inches: <input type="number" name="i2" required><br><br>
+
+        <h3> Select Operation </h3>
+        <input type="radio" name="choice" value="add" required> Add
+        <input type="radio" name="choice" value="diff"> Difference <br><br>
+
+        <input type="submit" name="calculate">
+        
+    </form>
+</body>
+</html>
